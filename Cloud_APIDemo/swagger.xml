@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cloud_APIDemo</name>
+    </assembly>
+    <members>
+        <member name="M:Cloud_APIDemo.Controllers.UserController.Create(BLL.Forms.RegisterForm)">
+            <summary>
+            Permet l'enregistrement d'un utilisateur
+            </summary>
+            <param name="form">RegisterForm</param>
+            <response code="400">Erreur dans le formulaire</response>
+            <returns></returns>
+            <remarks>Toto fait du vélo</remarks>
+        </member>
+    </members>
+</doc>

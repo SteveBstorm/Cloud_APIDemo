@@ -78,9 +78,13 @@ namespace BLL.Services
             {
                 return _userRepository.Delete(u);
             }
-
+            
             return false;
         }
 
+        public User? GetByMail(string email)
+        {
+            return _userRepository.GetByEmail(email);
+        }
     }
 }
