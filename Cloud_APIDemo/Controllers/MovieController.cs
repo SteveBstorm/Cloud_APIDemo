@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Cloud_APIDemo.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cloud_APIDemo.Controllers
@@ -7,14 +8,14 @@ namespace Cloud_APIDemo.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
-        List<string> list;
+        List<Movie> list;
         public MovieController()
         {
-            list = new List<string>();
-            list.Add("LOTR : The Two Towers");
-            list.Add("Star Wars : New Hope");
-            list.Add("Pacific Rim");
-            list.Add("Joker");
+            list = new List<Movie>();
+            list.Add(new Movie (1, "LOTR : The Two Towers", 1999));
+            list.Add(new Movie( 2, "Star Wars : New Hope", 1977));
+            list.Add(new Movie( 3, "Pacific Rim", 2013));
+            list.Add(new Movie( 4, "Joker", 2021));
         }
         [HttpGet]
         public IActionResult GetAll()
@@ -25,21 +26,21 @@ namespace Cloud_APIDemo.Controllers
         [HttpGet("getById/{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(list[id]);
+            return Ok(list.FirstOrDefault(m => m.Id == id));
         }
 
         [HttpPost]
-        public IActionResult Ajout(string titre)
+        public IActionResult Ajout(Movie m)
         {
-            list.Add(titre);
-            return Ok(list);
+            list.Add(m);
+            return Ok();
         }
 
         [HttpPatch]
         public IActionResult Update(int id, string titre)
         {
-            list[id] = titre;
-            return Ok(list);
+            list.FirstOrDefault(m => m.Id == id).Title = titre;
+            return Ok();
         }
 
         [HttpDelete]
