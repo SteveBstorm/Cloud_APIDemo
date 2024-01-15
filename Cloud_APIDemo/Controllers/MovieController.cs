@@ -1,9 +1,11 @@
 ﻿using Cloud_APIDemo.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cloud_APIDemo.Controllers
 {
+    [Authorize("connected")]
     [Route("api/[controller]")]
     [ApiController]
     public class MovieController : ControllerBase
@@ -22,6 +24,7 @@ namespace Cloud_APIDemo.Controllers
         {
             return Ok(list);
         }
+        [Authorize("adminPolicy")]
 
         [HttpGet("getById/{id}")]
         public IActionResult Get(int id)
@@ -29,6 +32,7 @@ namespace Cloud_APIDemo.Controllers
             return Ok(list.FirstOrDefault(m => m.Id == id));
         }
 
+        [Authorize("adminPolicy")]
         [HttpPost]
         public IActionResult Ajout(Movie m)
         {
@@ -43,6 +47,7 @@ namespace Cloud_APIDemo.Controllers
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpDelete]
         public IActionResult Delete(int id)
         {

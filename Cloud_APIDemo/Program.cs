@@ -1,7 +1,12 @@
 using BLL.Services;
+using Cloud_APIDemo.Tools;
 using DAL.Interfaces;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.Swagger;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +25,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1",
-        new Microsoft.OpenApi.Models.OpenApiInfo {
+        new Microsoft.OpenApi.Models.OpenApiInfo
+        {
             Title = "Ma super api de fou",
             Version = "v1",
             Contact = new Microsoft.OpenApi.Models.OpenApiContact() { Email = "steve@sieste.com" }
@@ -31,11 +37,30 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(filePath);
 });
 
-builder.Services.AddScoped<IUserRepository, UserRepositoryDb>(sp => 
+builder.Services.AddScoped<IUserRepository, UserRepositoryDb>(sp =>
     new UserRepositoryDb(builder.Configuration.GetConnectionString("DevNetCloudDB")));
 
 builder.Services.AddScoped<UserService>();
 
+builder.Services.AddAuthorization(option =>
+   {
+       option.AddPolicy("adminPolicy", o => o.RequireRole("admin"));
+       option.AddPolicy("connected", o => o.RequireAuthenticatedUser());
+   });
+//nécéssite le package Microsoft.AspNetCore.Authentication.JwtBearer
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+    options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenManager.key)),
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false
+    };
+    }
+    );
 
 var app = builder.Build();
 
@@ -48,6 +73,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//Bien déclarer dans cet ordre
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,7 +1,12 @@
 ﻿using BLL.Forms;
 using BLL.Services;
+using Cloud_APIDemo.Models;
+using Cloud_APIDemo.Tools;
+using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Cloud_APIDemo.Controllers
 {
@@ -40,9 +45,19 @@ namespace Cloud_APIDemo.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login()
+        public IActionResult Login([FromBody]LoginForm form)
         {
-            return Ok();
+            if(!ModelState.IsValid)
+                return BadRequest();
+            
+            User connectedUser = _userService.Login(form.Email, form.Password);
+            
+
+            if (connectedUser == null)
+                return BadRequest("Utilisateur inexistant");
+
+            TokenManager manager = new TokenManager();
+            return Ok(manager.GenerateToken(connectedUser));
         }
 
         [HttpPatch("updatePwd/{id}")]
@@ -54,6 +69,7 @@ namespace Cloud_APIDemo.Controllers
             return Ok("update success");
         }
 
+        [Authorize("connected")]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -71,6 +87,7 @@ namespace Cloud_APIDemo.Controllers
             return Ok(_userService.GetByMail(email));
         }
 
+        [Authorize("adminPolicy")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

@@ -86,5 +86,15 @@ namespace BLL.Services
         {
             return _userRepository.GetByEmail(email);
         }
+
+        public User? Login(string email, string password)
+        {
+            User u = _userRepository.GetByEmail(email);
+            if(BCrypt.Net.BCrypt.Verify(password, u.Password))
+            {
+                return u;
+            }
+            return null;
+        }
     }
 }
