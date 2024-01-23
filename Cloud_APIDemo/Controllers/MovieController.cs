@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cloud_APIDemo.Controllers
 {
-    [Authorize("connected")]
+    //[Authorize("connected")]
     [Route("api/[controller]")]
     [ApiController]
     public class MovieController : ControllerBase
@@ -24,7 +24,7 @@ namespace Cloud_APIDemo.Controllers
         {
             return Ok(list);
         }
-        [Authorize("adminPolicy")]
+        //[Authorize("adminPolicy")]
 
         [HttpGet("getById/{id}")]
         public IActionResult Get(int id)
@@ -32,7 +32,7 @@ namespace Cloud_APIDemo.Controllers
             return Ok(list.FirstOrDefault(m => m.Id == id));
         }
 
-        [Authorize("adminPolicy")]
+        //[Authorize("adminPolicy")]
         [HttpPost]
         public IActionResult Ajout(Movie m)
         {
