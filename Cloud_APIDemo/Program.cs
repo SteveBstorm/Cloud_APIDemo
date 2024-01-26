@@ -1,5 +1,6 @@
 using BLL.Services;
 using Cloud_APIDemo.Hubs;
+using Cloud_APIDemo.Services;
 using Cloud_APIDemo.Tools;
 using DAL.Interfaces;
 using DAL.Repositories;
@@ -42,8 +43,10 @@ builder.Services.AddScoped<IUserRepository, UserRepositoryDb>(sp =>
     new UserRepositoryDb(builder.Configuration.GetConnectionString("DevNetCloudDB")));
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<MovieService>();
 
 builder.Services.AddSingleton<ChatHub>();
+builder.Services.AddSingleton<MovieHub>();
 
 builder.Services.AddAuthorization(option =>
    {
@@ -92,5 +95,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("chathub");
+app.MapHub<MovieHub>("moviehub");
 
 app.Run();

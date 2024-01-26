@@ -1,4 +1,6 @@
-﻿using Cloud_APIDemo.Models;
+﻿using Cloud_APIDemo.Hubs;
+using Cloud_APIDemo.Models;
+using Cloud_APIDemo.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,49 +12,48 @@ namespace Cloud_APIDemo.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
-        List<Movie> list;
-        public MovieController()
+        private readonly MovieService _movieService;
+        private readonly MovieHub _movieHub;
+        public MovieController(MovieService movieService, MovieHub movieHub)
         {
-            list = new List<Movie>();
-            list.Add(new Movie (1, "LOTR : The Two Towers", 1999));
-            list.Add(new Movie( 2, "Star Wars : New Hope", 1977));
-            list.Add(new Movie( 3, "Pacific Rim", 2013));
-            list.Add(new Movie( 4, "Joker", 2021));
+            _movieService = movieService;
+            _movieHub = movieHub;
         }
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(list);
+            return Ok(_movieService.GetAll());
         }
         //[Authorize("adminPolicy")]
 
         [HttpGet("getById/{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(list.FirstOrDefault(m => m.Id == id));
+            return Ok(_movieService.GetById(id));
         }
 
         //[Authorize("adminPolicy")]
         [HttpPost]
         public IActionResult Ajout(Movie m)
         {
-            list.Add(m);
+            _movieService.Add(m);
+            _movieHub.NewMovie();
             return Ok();
         }
 
-        [HttpPatch]
-        public IActionResult Update(int id, string titre)
-        {
-            list.FirstOrDefault(m => m.Id == id).Title = titre;
-            return Ok();
-        }
+        //[HttpPatch]
+        //public IActionResult Update(int id, string titre)
+        //{
+        //    list.FirstOrDefault(m => m.Id == id).Title = titre;
+        //    return Ok();
+        //}
 
         [AllowAnonymous]
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            list.RemoveAt(id);
-            return Ok(list);
+            _movieService.Delete(id);
+            return Ok();
         }
     }
 }
