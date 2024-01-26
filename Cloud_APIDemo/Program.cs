@@ -1,4 +1,5 @@
 using BLL.Services;
+using Cloud_APIDemo.Hubs;
 using Cloud_APIDemo.Tools;
 using DAL.Interfaces;
 using DAL.Repositories;
@@ -42,6 +43,8 @@ builder.Services.AddScoped<IUserRepository, UserRepositoryDb>(sp =>
 
 builder.Services.AddScoped<UserService>();
 
+builder.Services.AddSingleton<ChatHub>();
+
 builder.Services.AddAuthorization(option =>
    {
        option.AddPolicy("adminPolicy", o => o.RequireRole("admin"));
@@ -62,6 +65,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     }
     );
 
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(o => o.AddPolicy("signalRBlazor", p =>
+    p.WithOrigins("https://localhost:7139").AllowCredentials().AllowAnyHeader().AllowAnyMethod()));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -73,12 +81,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(o => o.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+//app.UseCors(o => o.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+app.UseCors("signalRBlazor");
 
 //Bien déclarer dans cet ordre
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("chathub");
 
 app.Run();

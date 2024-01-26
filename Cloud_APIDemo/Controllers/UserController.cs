@@ -1,5 +1,6 @@
 ﻿using BLL.Forms;
 using BLL.Services;
+using Cloud_APIDemo.Hubs;
 using Cloud_APIDemo.Models;
 using Cloud_APIDemo.Tools;
 using DAL.Entities;
@@ -23,10 +24,12 @@ namespace Cloud_APIDemo.Controllers
          */
 
         private readonly UserService _userService;
+        private readonly ChatHub _chatHub;
 
-        public UserController([FromBody]UserService userService)
+        public UserController(UserService userService, ChatHub chatHub)
         {
             _userService = userService;
+            _chatHub = chatHub;
         }
         /// <summary>
         /// Permet l'enregistrement d'un utilisateur
@@ -57,6 +60,9 @@ namespace Cloud_APIDemo.Controllers
                 return BadRequest("Utilisateur inexistant");
 
             TokenManager manager = new TokenManager();
+
+            _chatHub.SendMessage($"L'utilisateur {connectedUser} vient de se connecter");
+
             return Ok(manager.GenerateToken(connectedUser));
         }
 
